@@ -1,0 +1,7 @@
+# A namespace is a folder for grouping related resources. Everything for
+# StartupIQ lives in the "startupiq" namespace, keeping it tidy and easy to
+# delete all at once (kubectl delete namespace startupiq).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: startupiq

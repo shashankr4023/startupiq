@@ -1,0 +1,32 @@
+# The Ingress is the cluster's front door (the Kubernetes equivalent of the nginx
+# reverse proxy in our Docker Compose setup). It routes by URL path to the right
+# Service, giving the whole app one origin (http://localhost) - so no CORS.
+#
+# Requires an ingress controller in the cluster (ingress-nginx). See the README.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: startupiq
+  namespace: startupiq
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          # Longest-prefix match: /api/* -> the backend (path preserved, so the
+          # backend still sees /api/v1/...).
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 8000
+          # Everything else -> the Next.js frontend.
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 3000

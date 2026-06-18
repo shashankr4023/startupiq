@@ -1,0 +1,37 @@
+# Redis: the queue + cache + rate-limit store, shared by all API and worker pods.
+# This is the SINGLE shared state that makes the stateless API replicas work -
+# the rate-limit counters and cache live here, not in any one pod's memory.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: startupiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+---
+# A Service gives the pods a stable name + IP. Other pods reach Redis at
+# "redis:6379" no matter which node the pod runs on or how often it restarts.
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: startupiq
+spec:
+  selector:
+    app: redis
+  ports:
+    - port: 6379
+      targetPort: 6379

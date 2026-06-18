@@ -1,0 +1,14 @@
+# Non-secret config that DIFFERS inside Kubernetes. Everything else (Supabase
+# URLs, API keys, models, rate limits) comes from the Secret, which is built from
+# backend/.env. These values override the ones in that Secret because the
+# Deployments list the ConfigMap *after* the Secret in envFrom.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: startupiq-config
+  namespace: startupiq
+data:
+  # "redis" is the Redis Service's name - DNS resolves it inside the cluster.
+  REDIS_URL: redis://redis:6379
+  FRONTEND_ORIGIN: http://localhost
+  ENVIRONMENT: production

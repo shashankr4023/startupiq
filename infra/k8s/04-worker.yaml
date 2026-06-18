@@ -1,0 +1,35 @@
+# The Arq worker - same image as the API, different command. No Service because
+# it serves no HTTP; it pulls jobs from Redis. Scale its replicas to process more
+# evaluations in parallel (kubectl scale deployment/worker --replicas=N).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: startupiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: startupiq-backend:latest
+          imagePullPolicy: IfNotPresent
+          command: ["arq", "app.worker.settings.WorkerSettings"]
+          envFrom:
+            - secretRef:
+                name: startupiq-secrets
+            - configMapRef:
+                name: startupiq-config
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi

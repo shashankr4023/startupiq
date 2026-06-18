@@ -1,0 +1,63 @@
+# The FastAPI backend - run as THREE identical replicas. This is the headline of
+# Phase 9: because the API is stateless (all state in Postgres + Redis), we can
+# run many copies, and a Service load-balances requests across them.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: startupiq
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api
+          image: startupiq-backend:latest
+          imagePullPolicy: IfNotPresent # use the locally-built image, don't pull from a registry
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: startupiq-secrets # Supabase, keys, models, rate limits (from backend/.env)
+            - configMapRef:
+                name: startupiq-config # REDIS_URL etc. - overrides the Secret
+          # Kubernetes only sends traffic to a pod once /health returns 200, and
+          # restarts a pod that stops being live. Self-healing for free.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+---
+# One stable address (api:8000) that load-balances across all 3 api pods.
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: startupiq
+spec:
+  selector:
+    app: api
+  ports:
+    - port: 8000
+      targetPort: 8000

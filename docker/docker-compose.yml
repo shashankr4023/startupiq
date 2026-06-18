@@ -1,0 +1,70 @@
+# The whole StartupIQ stack in one file. From this folder, run:
+#     docker compose up --build
+# and the entire app is reachable at http://localhost
+#
+# Five services: redis (queue/cache), api (FastAPI), worker (Arq), frontend
+# (Next.js), and nginx (reverse proxy / single front door).
+
+services:
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis-data:/data # named volume so the queue/cache survives restarts
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    image: startupiq-backend:latest
+    # Load all backend config (Supabase, OpenAI/Claude keys, etc.) from the
+    # existing backend .env, then override the few values that differ in Docker.
+    env_file: ../backend/.env
+    environment:
+      REDIS_URL: redis://redis:6379 # 'redis' is the service name, resolvable on the compose network
+      FRONTEND_ORIGIN: http://localhost
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    image: startupiq-backend:latest # same image as the api, different command
+    command: ["arq", "app.worker.settings.WorkerSettings"]
+    env_file: ../backend/.env
+    environment:
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      # NEXT_PUBLIC_* are baked in at build time (see frontend/Dockerfile).
+      # Values come from docker/.env via compose interpolation.
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+    image: startupiq-frontend:latest
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80" # the only port exposed to your host
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+      - frontend
+    restart: unless-stopped
+
+volumes:
+  redis-data:

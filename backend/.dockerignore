@@ -1,0 +1,11 @@
+# Keep the build context small, and never bake secrets or local junk into the
+# image. (.env is injected at runtime via env_file, not copied in.)
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.env
+tests
+scripts
+alembic/versions/__pycache__
+.git

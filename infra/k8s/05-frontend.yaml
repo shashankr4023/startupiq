@@ -1,0 +1,43 @@
+# The Next.js frontend. It needs no env here - its NEXT_PUBLIC_* config was baked
+# into the bundle at BUILD time (see frontend/Dockerfile). It was built with
+# NEXT_PUBLIC_API_BASE_URL=http://localhost, which matches the Ingress origin.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: startupiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: startupiq-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: "0.5"
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: startupiq
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 3000
+      targetPort: 3000

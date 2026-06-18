@@ -1,0 +1,3 @@
+# Load-testing tool (kept separate from the backend deps so the app stays lean).
+#   pip install -r infra/loadtest/requirements.txt
+locust>=2.31

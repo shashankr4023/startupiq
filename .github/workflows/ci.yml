@@ -1,0 +1,90 @@
+# StartupIQ CI/CD pipeline.
+#
+# On every push / pull request: run the backend tests and build the frontend
+# (Continuous Integration - catch breakage early).
+# On push to main: also build the Docker images and push them to GitHub's
+# container registry (Continuous Delivery - publish deployable artifacts).
+#
+# GitHub runs this automatically once the repo is on GitHub. No servers to manage.
+
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install backend (with dev deps)
+        working-directory: backend
+        run: pip install -e ".[dev]"
+      - name: Run tests
+        working-directory: backend
+        # Tests are fully hermetic (in-memory SQLite, fakes for Redis/LLM/auth),
+        # so they need no secrets and no services.
+        run: pytest -q
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install
+        working-directory: frontend
+        run: npm ci
+      - name: Build
+        working-directory: frontend
+        # Dummy NEXT_PUBLIC values are fine for a compile check - the build just
+        # needs to succeed, not actually connect anywhere.
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-dummy-anon-key
+          NEXT_PUBLIC_API_BASE_URL: http://localhost
+        run: npm run build
+
+  publish-images:
+    # Only publish on a real push to main, after tests + build pass.
+    needs: [backend-tests, frontend-build]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # allows pushing to GitHub Container Registry (ghcr.io)
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }} # automatically provided by GitHub
+
+      - name: Build & push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/startupiq-backend:latest
+
+      - name: Build & push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/startupiq-frontend:latest
+          # Real values come from repo Settings -> Secrets and variables -> Actions.
+          build-args: |
+            NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}

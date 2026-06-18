@@ -1,0 +1,25 @@
+# Horizontal Pod Autoscaler: automatically add/remove api replicas based on CPU.
+# This is auto-scaling - the cluster grows the app under load and shrinks it when
+# idle, without you touching anything.
+#
+# OPTIONAL: needs the metrics-server installed in the cluster (the README shows
+# how). Skip this file if you don't install metrics-server.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api
+  namespace: startupiq
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60 # add pods when avg CPU across pods exceeds 60%
