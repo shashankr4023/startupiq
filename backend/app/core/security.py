@@ -13,7 +13,19 @@ bearer_scheme = HTTPBearer()
 # Newer Supabase projects sign access tokens with an asymmetric key
 # (ES256/RS256) identified by a "kid" in the token header, so verification
 # uses the matching public key rather than a shared secret.
-_jwk_client = PyJWKClient(settings.SUPABASE_JWKS_URL)
+#
+# Built lazily on first use (not at import) so the module imports cleanly even
+# when SUPABASE_URL isn't configured - e.g. in CI, where tests override
+# get_current_user and never reach this. (PyJWKClient validates the URL scheme
+# in its constructor.)
+_jwk_client: PyJWKClient | None = None
+
+
+def _get_jwk_client() -> PyJWKClient:
+    global _jwk_client
+    if _jwk_client is None:
+        _jwk_client = PyJWKClient(settings.SUPABASE_JWKS_URL)
+    return _jwk_client
 
 
 async def get_current_user(
@@ -27,7 +39,7 @@ async def get_current_user(
     """
     token = credentials.credentials
     try:
-        signing_key = _jwk_client.get_signing_key_from_jwt(token)
+        signing_key = _get_jwk_client().get_signing_key_from_jwt(token)
         payload = jwt.decode(
             token,
             signing_key.key,
