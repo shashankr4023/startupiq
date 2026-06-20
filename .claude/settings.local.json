@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(docker --version)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(ls -la /Users/shashank/Workspace/)"
     ]
   }
 }

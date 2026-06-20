@@ -1,0 +1,1035 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Building StartupIQ — A Complete Beginner's Guide</title>
+<style>
+  :root {
+    --blue: #1b4dff;
+    --blue-dark: #1339cc;
+    --green: #7bb800;
+    --green-light: #a3e635;
+    --ink: #14213d;
+    --muted: #5b6680;
+    --line: #d7deea;
+    --bg-soft: #f4f6fb;
+    --code-bg: #0f172a;
+  }
+
+  @page {
+    size: A4;
+    margin: 20mm 18mm 18mm 18mm;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    line-height: 1.55;
+    font-size: 11.2pt;
+    margin: 0;
+  }
+
+  h1, h2, h3, h4 { line-height: 1.2; color: var(--ink); }
+  h2 { font-size: 21pt; border-bottom: 3px solid var(--green-light); padding-bottom: 6px; margin-top: 0; }
+  h3 { font-size: 14.5pt; color: var(--blue-dark); margin-top: 22px; }
+  h4 { font-size: 12pt; margin-top: 16px; margin-bottom: 4px; }
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0 8px 0; padding-left: 22px; }
+  li { margin: 4px 0; }
+  a { color: var(--blue); text-decoration: none; }
+  strong { color: var(--ink); }
+  code {
+    font-family: "SF Mono", "Consolas", monospace;
+    background: #eef1f8;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0.5px 5px;
+    font-size: 9.6pt;
+    color: #143;
+  }
+  pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    font-size: 9pt;
+    line-height: 1.45;
+  }
+  pre code { background: none; border: none; color: inherit; padding: 0; font-size: 9pt; }
+
+  /* Layout helpers */
+  .chapter { page-break-before: always; padding-top: 4px; }
+  .no-break { page-break-inside: avoid; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10pt; }
+  th, td { border: 1px solid var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { background: var(--bg-soft); }
+
+  /* Callout boxes */
+  .box { border-radius: 8px; padding: 11px 14px; margin: 12px 0; font-size: 10.4pt; page-break-inside: avoid; }
+  .analogy { background: #fff7e6; border-left: 5px solid #f0a500; }
+  .inproject { background: #eef4ff; border-left: 5px solid var(--blue); }
+  .whenuse { background: #f0fae0; border-left: 5px solid var(--green); }
+  .warn { background: #fdecec; border-left: 5px solid #e23b3b; }
+  .box .label { font-weight: 800; text-transform: uppercase; letter-spacing: .04em; font-size: 8.6pt; display:block; margin-bottom: 3px; }
+  .analogy .label { color: #b07400; }
+  .inproject .label { color: var(--blue-dark); }
+  .whenuse .label { color: var(--green); }
+  .warn .label { color: #c62828; }
+
+  figure { margin: 16px 0; text-align: center; page-break-inside: avoid; }
+  figure svg { max-width: 100%; height: auto; }
+  figcaption { font-size: 9pt; color: var(--muted); margin-top: 6px; font-style: italic; }
+
+  .svg-label { font: 600 11px -apple-system, sans-serif; fill: var(--ink); }
+  .svg-small { font: 500 9.5px -apple-system, sans-serif; fill: var(--muted); }
+  .svg-white { font: 700 11px -apple-system, sans-serif; fill: #fff; }
+
+  /* Cover */
+  .cover { height: 257mm; display: flex; flex-direction: column; justify-content: center; page-break-after: always; text-align: center; }
+  .cover .badge { display:inline-block; background: var(--green-light); color: var(--ink); font-weight: 800; padding: 6px 16px; border-radius: 999px; font-size: 11pt; letter-spacing:.03em; }
+  .cover h1 { font-size: 40pt; margin: 18px 0 6px; }
+  .cover h1 .iq { color: var(--blue); }
+  .cover .sub { font-size: 15pt; color: var(--muted); max-width: 460px; margin: 8px auto 0; }
+  .cover .foot { margin-top: 40px; font-size: 10.5pt; color: var(--muted); }
+
+  /* TOC */
+  .toc { page-break-after: always; }
+  .toc h2 { border: none; }
+  .toc ol { list-style: none; padding-left: 0; counter-reset: toc; }
+  .toc > ol > li { counter-increment: toc; margin: 7px 0; font-weight: 700; }
+  .toc > ol > li::before { content: counter(toc) ".  "; color: var(--blue); }
+  .toc .part { margin-top: 16px; color: var(--green); font-weight: 800; text-transform: uppercase; font-size: 9.5pt; letter-spacing: .06em; }
+  .lead { font-size: 12pt; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- ============================ COVER ============================ -->
+<div class="cover">
+  <div><span class="badge">A Complete Beginner's Guide</span></div>
+  <h1>Building&nbsp;Startup<span class="iq">IQ</span></h1>
+  <div class="sub">How a real, full-stack, AI-powered web app is built — and the tools behind it, explained from zero.</div>
+  <div class="foot">
+    FastAPI &middot; Supabase &middot; Redis &middot; Docker &middot; Kubernetes &middot; GitHub Actions<br>
+    A hands-on tour of backend systems, scaling, and shipping software.
+  </div>
+</div>
+
+<!-- ============================ TOC ============================ -->
+<div class="toc">
+  <h2>What's inside</h2>
+  <p class="lead">Read it top to bottom, or jump to the tool you want to learn. Every lesson explains the idea from scratch, shows a diagram, ties it back to the StartupIQ app, and tells you when to use it elsewhere.</p>
+  <ol>
+    <div class="part">Part I — The Project</div>
+    <li>What We Built &amp; The Big Picture</li>
+    <div class="part">Part II — Backend Foundations</div>
+    <li>APIs and FastAPI</li>
+    <li>Databases (Postgres, Indexes, Migrations)</li>
+    <li>Authentication (How Login Really Works)</li>
+    <div class="part">Part III — Speed, Scale &amp; Events</div>
+    <li>Redis: Cache, Queue &amp; Rate Limiter</li>
+    <li>Background Jobs &amp; Workers</li>
+    <li>Webhooks (Event-Driven Design)</li>
+    <div class="part">Part IV — Infrastructure (the core lessons)</div>
+    <li>Docker &amp; Containers</li>
+    <li>Load Balancers &amp; Scaling</li>
+    <li>Kubernetes</li>
+    <li>GitHub &amp; GitHub Actions (CI/CD)</li>
+    <div class="part">Part V — Shipping It</div>
+    <li>Cloud Deployment: From Code to Live</li>
+    <div class="part">Appendix</div>
+    <li>Glossary of Every Term</li>
+  </ol>
+</div>
+
+<!-- ============================ CH1 ============================ -->
+<section class="chapter">
+  <h2>1 &nbsp;What We Built &amp; The Big Picture</h2>
+
+  <p><strong>StartupIQ</strong> is a web app where you type in a startup idea and an AI evaluates it across six dimensions — competitors, target customers, market opportunity, risks, an MVP plan, and revenue models — and shows the results as visual tiles. But the app is really an excuse: building it end-to-end is how you learn the tools that turn a script into a real, scalable product.</p>
+
+  <p>This book teaches those tools from zero. You do not need prior experience with any of them. We will build up one idea at a time, and every lesson connects back to how StartupIQ actually uses it.</p>
+
+  <h3>The cast of characters</h3>
+  <p>A real web product is never one program. It is several specialised programs that talk to each other. Here is the whole system. Don't worry about the details yet — just get the shape.</p>
+
+  <figure>
+  <svg viewBox="0 0 720 420" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L7,3 L0,6 Z" fill="#5b6680"/>
+      </marker>
+    </defs>
+    <!-- browser -->
+    <rect x="290" y="10" width="140" height="42" rx="9" fill="#14213d"/>
+    <text x="360" y="36" text-anchor="middle" class="svg-white">Browser (user)</text>
+    <line x1="360" y1="52" x2="360" y2="78" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr)"/>
+
+    <!-- proxy -->
+    <rect x="265" y="80" width="190" height="40" rx="9" fill="#64748b"/>
+    <text x="360" y="105" text-anchor="middle" class="svg-white">nginx / Ingress (front door)</text>
+    <line x1="320" y1="120" x2="250" y2="150" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr)"/>
+    <line x1="400" y1="120" x2="470" y2="150" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr)"/>
+
+    <!-- frontend -->
+    <rect x="120" y="152" width="150" height="48" rx="9" fill="#1b4dff"/>
+    <text x="195" y="172" text-anchor="middle" class="svg-white">Frontend</text>
+    <text x="195" y="188" text-anchor="middle" class="svg-white" style="font-weight:500;font-size:9px">Next.js (React)</text>
+
+    <!-- api -->
+    <rect x="445" y="152" width="160" height="48" rx="9" fill="#1b4dff"/>
+    <text x="525" y="172" text-anchor="middle" class="svg-white">Backend API</text>
+    <text x="525" y="188" text-anchor="middle" class="svg-white" style="font-weight:500;font-size:9px">FastAPI (Python)</text>
+
+    <line x1="525" y1="200" x2="430" y2="246" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr)"/>
+    <line x1="540" y1="200" x2="600" y2="246" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr)"/>
+
+    <!-- postgres -->
+    <rect x="300" y="248" width="150" height="48" rx="9" fill="#0f9d58"/>
+    <text x="375" y="268" text-anchor="middle" class="svg-white">Database</text>
+    <text x="375" y="284" text-anchor="middle" class="svg-white" style="font-weight:500;font-size:9px">Postgres (Supabase)</text>
+
+    <!-- redis -->
+    <rect x="540" y="248" width="150" height="48" rx="9" fill="#dc382d"/>
+    <text x="615" y="268" text-anchor="middle" class="svg-white">Redis</text>
+    <text x="615" y="284" text-anchor="middle" class="svg-white" style="font-weight:500;font-size:9px">queue · cache · limits</text>
+    <line x1="615" y1="296" x2="615" y2="324" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr)"/>
+
+    <!-- worker -->
+    <rect x="535" y="326" width="160" height="48" rx="9" fill="#7c3aed"/>
+    <text x="615" y="346" text-anchor="middle" class="svg-white">Worker</text>
+    <text x="615" y="362" text-anchor="middle" class="svg-white" style="font-weight:500;font-size:9px">runs slow AI jobs</text>
+    <line x1="615" y1="374" x2="615" y2="396" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr)"/>
+
+    <!-- llm -->
+    <rect x="520" y="398" width="190" height="20" rx="6" fill="#14213d"/>
+    <text x="615" y="412" text-anchor="middle" class="svg-white" style="font-size:9px">LLM API (OpenAI / Claude)</text>
+
+    <text x="40" y="250" class="svg-small">Each box is a</text>
+    <text x="40" y="263" class="svg-small">separate program.</text>
+    <text x="40" y="276" class="svg-small">Arrows = "talks to".</text>
+  </svg>
+  <figcaption>The StartupIQ system. The browser only ever talks to the front door; everything else is hidden behind it.</figcaption>
+  </figure>
+
+  <h3>One job each</h3>
+  <table>
+    <tr><th>Piece</th><th>Its one job</th></tr>
+    <tr><td><strong>Frontend</strong> (Next.js)</td><td>The face. What the user sees and clicks. Knows nothing about the database — it only calls the API.</td></tr>
+    <tr><td><strong>Backend API</strong> (FastAPI)</td><td>The brain &amp; traffic controller. Checks who you are, enforces rules, reads/writes the database, hands slow work to the worker.</td></tr>
+    <tr><td><strong>Database</strong> (Postgres/Supabase)</td><td>Permanent memory. Stores users, ideas, results.</td></tr>
+    <tr><td><strong>Redis</strong></td><td>A fast scratchpad that plays three roles: a job queue, a cache, and a rate-limit counter.</td></tr>
+    <tr><td><strong>Worker</strong> (Arq)</td><td>Does the slow AI calls in the background so the API stays fast.</td></tr>
+    <tr><td><strong>LLM API</strong></td><td>The actual AI (OpenAI in development, Claude in production).</td></tr>
+  </table>
+
+  <div class="box inproject"><span class="label">The key idea: layers</span>
+  Notice nothing reaches across the diagram. The browser talks to the front door; the front door talks to the API; the API talks to the database. Each part has one clear job and only talks to its neighbours. This is called <strong>separation of concerns</strong>, and it is the single most important habit in building software that doesn't collapse as it grows. When you later add a feature, you touch <em>one</em> layer, not everything.</div>
+
+  <h3>The flow that matters most: don't make users wait</h3>
+  <p>Asking an AI to analyse an idea takes 10–20 seconds. If the API just sat there waiting, the user's browser would freeze and the server would get clogged. So StartupIQ uses a pattern you will see everywhere in real systems: <strong>accept the request instantly, do the slow work in the background, and let the client check back for the result.</strong></p>
+
+  <figure>
+  <svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5b6680"/></marker>
+    </defs>
+    <text x="20" y="28" class="svg-label">1. ACCEPT</text>
+    <rect x="120" y="12" width="120" height="34" rx="7" fill="#14213d"/><text x="180" y="33" text-anchor="middle" class="svg-white" style="font-size:10px">Client</text>
+    <line x1="240" y1="29" x2="430" y2="29" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr2)"/>
+    <text x="335" y="22" text-anchor="middle" class="svg-small">POST evaluation</text>
+    <rect x="432" y="12" width="120" height="34" rx="7" fill="#1b4dff"/><text x="492" y="33" text-anchor="middle" class="svg-white" style="font-size:10px">API</text>
+    <line x1="492" y1="46" x2="492" y2="76" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr2)"/>
+    <text x="600" y="33" class="svg-small">returns 202 +</text><text x="600" y="45" class="svg-small">a job id, instantly</text>
+
+    <text x="20" y="98" class="svg-label">2. WORK</text>
+    <rect x="432" y="80" width="120" height="34" rx="7" fill="#dc382d"/><text x="492" y="101" text-anchor="middle" class="svg-white" style="font-size:10px">Redis queue</text>
+    <line x1="552" y1="97" x2="600" y2="97" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr2)"/>
+    <rect x="602" y="80" width="100" height="34" rx="7" fill="#7c3aed"/><text x="652" y="101" text-anchor="middle" class="svg-white" style="font-size:10px">Worker</text>
+    <text x="120" y="98" class="svg-small">(nobody is waiting on a connection — the worker</text>
+    <text x="120" y="110" class="svg-small">takes the job, calls the AI, saves the result)</text>
+
+    <text x="20" y="170" class="svg-label">3. POLL</text>
+    <rect x="120" y="154" width="120" height="34" rx="7" fill="#14213d"/><text x="180" y="175" text-anchor="middle" class="svg-white" style="font-size:10px">Client</text>
+    <line x1="240" y1="171" x2="430" y2="171" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr2)"/>
+    <text x="335" y="164" text-anchor="middle" class="svg-small">GET /jobs/{id}</text>
+    <rect x="432" y="154" width="120" height="34" rx="7" fill="#1b4dff"/><text x="492" y="175" text-anchor="middle" class="svg-white" style="font-size:10px">API</text>
+    <text x="585" y="166" class="svg-small">"queued" → "running"</text>
+    <text x="585" y="180" class="svg-small">→ "completed" + result</text>
+    <text x="120" y="214" class="svg-small">The client asks "is it done yet?" every couple of seconds until the result appears.</text>
+  </svg>
+  <figcaption>The accept → work → poll pattern. The API answers in milliseconds; the slow part happens where no one is waiting.</figcaption>
+  </figure>
+
+  <p>That single pattern is why StartupIQ stays responsive, and it shows up again and again — "we'll email you when your export is ready" is the same idea. The rest of this book unpacks each tool that makes a system like this work, starting with the front door of the backend: the API.</p>
+</section>
+
+<!-- ============================ CH2 ============================ -->
+<section class="chapter">
+  <h2>2 &nbsp;APIs and FastAPI</h2>
+
+  <p>The outside world — your frontend, a phone app, a <code>curl</code> command — can't touch the database directly (that would be a security nightmare). It goes through an <strong>API</strong>: a controlled set of doors, each with rules about who may enter and what they may do.</p>
+
+  <div class="box analogy"><span class="label">Analogy</span>
+  An API is like the <strong>counter at a restaurant</strong>. You don't walk into the kitchen and cook. You place an order at the counter ("I'd like the pasta"), and the kitchen does the work and hands back a result. The counter is the only way in, and it follows rules. The API is your app's counter.</div>
+
+  <h3>The vocabulary (this is most of it)</h3>
+  <p>An API call is just an <strong>HTTP request</strong>. It has four parts:</p>
+  <ul>
+    <li><strong>Method</strong> — the <em>verb</em>, what you want to do: <code>GET</code> (read), <code>POST</code> (create), <code>PATCH</code> (update), <code>DELETE</code> (remove).</li>
+    <li><strong>URL / path</strong> — the <em>noun</em>, which thing: <code>/api/v1/ideas/123</code>.</li>
+    <li><strong>Body</strong> — the data you send, as JSON (a simple text format of keys and values).</li>
+    <li><strong>Status code</strong> — the result, as a number: <code>200</code> OK, <code>201</code> Created, <code>404</code> Not Found, <code>401</code> Unauthorized. You'll memorise these without trying.</li>
+  </ul>
+
+  <h3>REST: design URLs around things, not actions</h3>
+  <p>The popular style we use is <strong>REST</strong>. Its rule: build your URLs around <em>resources</em> (nouns) and use the HTTP method for the verb. So for "ideas" we don't invent <code>/createIdea</code> and <code>/getMyIdeas</code>. We have one noun, <code>/ideas</code>, and vary the method:</p>
+  <table>
+    <tr><th>Request</th><th>Means</th></tr>
+    <tr><td><code>POST /api/v1/ideas</code></td><td>Create a new idea</td></tr>
+    <tr><td><code>GET /api/v1/ideas</code></td><td>List my ideas</td></tr>
+    <tr><td><code>GET /api/v1/ideas/{id}</code></td><td>Get one idea</td></tr>
+    <tr><td><code>PATCH /api/v1/ideas/{id}</code></td><td>Update an idea</td></tr>
+    <tr><td><code>DELETE /api/v1/ideas/{id}</code></td><td>Remove an idea</td></tr>
+  </table>
+  <p>Once you learn this pattern, you can <em>guess</em> the API for any new thing. The <code>v1</code> in the path is <strong>versioning</strong>: someday you'll change the API in a way that would break old clients, so you'll add <code>/api/v2/</code> and leave <code>v1</code> alone. Building it in from day one is free insurance.</p>
+
+  <h3>What FastAPI is</h3>
+  <p><strong>FastAPI</strong> is the Python framework we use to build the API. You write a normal Python function and decorate it to say "this function answers this URL." FastAPI handles reading the request, checking the data, and turning your return value into JSON.</p>
+
+  <pre><code>@router.post("/ideas", status_code=201)        # POST /ideas → 201 Created
+async def create_idea(
+    payload: IdeaCreate,                        # the JSON body, auto-validated
+    user_id: UUID = Depends(get_current_user),  # who is calling (see Ch.4)
+    session: AsyncSession = Depends(get_session)# a database connection
+):
+    idea = StartupIdea(**payload.model_dump(), user_id=user_id)
+    session.add(idea)
+    await session.commit()                      # save it
+    return idea                                 # FastAPI turns this into JSON</code></pre>
+
+  <h4>Two ideas worth pausing on</h4>
+  <p><strong>Validation for free.</strong> The <code>payload: IdeaCreate</code> line tells FastAPI "the body must look like an <code>IdeaCreate</code>." We define <code>IdeaCreate</code> with the fields and rules (e.g. title can't be empty), and FastAPI rejects bad input automatically <em>before your code runs</em>. We use a library called <strong>Pydantic</strong> for this — it's like a bouncer checking IDs at the door.</p>
+
+  <p><strong>Dependency injection</strong> — the <code>Depends(...)</code> bits. Instead of every function manually doing "figure out who's calling, open a database connection," it just <em>declares what it needs</em>, and FastAPI supplies it. The function reads like a statement of requirements. This keeps shared logic (like checking the login) in one place instead of copy-pasted everywhere.</p>
+
+  <div class="box inproject"><span class="label">In StartupIQ</span>
+  Every protected endpoint has <code>user_id = Depends(get_current_user)</code>, and every database query filters by that user (<code>where user_id == current user</code>). The login proves <em>who you are</em> (authentication); this filter enforces <em>what you're allowed to see</em> (authorization). They are different checks, and you need both. A nice detail: if you ask for someone else's idea, we return <code>404 Not Found</code>, not <code>403 Forbidden</code> — saying "forbidden" would leak the fact that the idea exists.</div>
+
+  <div class="box whenuse"><span class="label">When you'll use this elsewhere</span>
+  Any time two programs need to talk over a network — a mobile app talking to a server, one microservice calling another, a third party integrating with you — you build (or call) a REST API. FastAPI (Python), Express (Node.js), and Spring (Java) are all popular ways to build one. The concepts (methods, paths, status codes, JSON, validation) are identical across all of them.</div>
+
+  <p>FastAPI also gives you a free, clickable API explorer at <code>/docs</code> — open it in a browser and you can try every endpoint without writing any code. Great for testing.</p>
+</section>
+
+<!-- ============================ CH3 ============================ -->
+<section class="chapter">
+  <h2>3 &nbsp;Databases (Postgres, Indexes, Migrations)</h2>
+
+  <p>A web app without a database is a goldfish: it forgets everything the moment it restarts. The database is the app's permanent memory.</p>
+
+  <h3>Why a "relational" database</h3>
+  <p>Our data is full of relationships: a user <em>has many</em> ideas; an idea <em>has many</em> evaluations. When data looks like that, a <strong>relational database</strong> is the right tool. It stores data in <strong>tables</strong> (like spreadsheets) and lets you connect them. We use <strong>PostgreSQL</strong> ("Postgres") — the most respected open-source one — hosted by <strong>Supabase</strong>, which hands us a cloud Postgres plus a ready-made login system for free.</p>
+
+  <figure>
+  <svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="arr3" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#0f9d58"/></marker></defs>
+    <!-- profiles -->
+    <rect x="40" y="40" width="170" height="120" rx="8" fill="#fff" stroke="#0f9d58" stroke-width="2"/>
+    <rect x="40" y="40" width="170" height="26" rx="8" fill="#0f9d58"/>
+    <text x="125" y="58" text-anchor="middle" class="svg-white">profiles (users)</text>
+    <text x="52" y="86" class="svg-small">id  (primary key)</text>
+    <text x="52" y="104" class="svg-small">email</text>
+    <text x="52" y="122" class="svg-small">display_name</text>
+    <text x="52" y="140" class="svg-small">created_at</text>
+
+    <!-- ideas -->
+    <rect x="265" y="40" width="170" height="120" rx="8" fill="#fff" stroke="#0f9d58" stroke-width="2"/>
+    <rect x="265" y="40" width="170" height="26" rx="8" fill="#0f9d58"/>
+    <text x="350" y="58" text-anchor="middle" class="svg-white">startup_ideas</text>
+    <text x="277" y="86" class="svg-small">id  (primary key)</text>
+    <text x="277" y="104" class="svg-small" style="fill:#1b4dff">user_id  (foreign key)</text>
+    <text x="277" y="122" class="svg-small">title, description</text>
+    <text x="277" y="140" class="svg-small">status, created_at</text>
+
+    <!-- jobs -->
+    <rect x="490" y="40" width="170" height="120" rx="8" fill="#fff" stroke="#0f9d58" stroke-width="2"/>
+    <rect x="490" y="40" width="170" height="26" rx="8" fill="#0f9d58"/>
+    <text x="575" y="58" text-anchor="middle" class="svg-white">jobs (evaluations)</text>
+    <text x="502" y="86" class="svg-small">id</text>
+    <text x="502" y="104" class="svg-small" style="fill:#1b4dff">idea_id  (foreign key)</text>
+    <text x="502" y="122" class="svg-small">status, result</text>
+    <text x="502" y="140" class="svg-small">feature_type</text>
+
+    <line x1="265" y1="104" x2="212" y2="104" stroke="#0f9d58" stroke-width="1.8" marker-end="url(#arr3)"/>
+    <line x1="490" y1="104" x2="437" y2="104" stroke="#0f9d58" stroke-width="1.8" marker-end="url(#arr3)"/>
+    <text x="350" y="200" text-anchor="middle" class="svg-small">A "foreign key" is a column that must point to a real row in another table.</text>
+    <text x="350" y="216" text-anchor="middle" class="svg-small">It's how each idea knows its owner, and each job knows its idea.</text>
+  </svg>
+  <figcaption>Three connected tables. The database itself enforces that every idea points to a real user — you physically can't create an orphan.</figcaption>
+  </figure>
+
+  <h3>Keys, the building blocks</h3>
+  <ul>
+    <li>A <strong>primary key</strong> uniquely identifies each row (every table has one). We use a <strong>UUID</strong> — a long random id like <code>da272dcd-1b4d-…</code> — so ids are unguessable and don't leak how many records exist.</li>
+    <li>A <strong>foreign key</strong> is a column that must point to a real row in another table. <code>idea.user_id</code> must equal some <code>profiles.id</code>. The database <em>enforces</em> this; you cannot create an idea for a non-existent user. That guarantee is called <strong>referential integrity</strong>.</li>
+  </ul>
+
+  <h3>Indexes: the most important performance idea</h3>
+  <p>Imagine a table with 50,000 ideas and you ask "give me all ideas for user X." Without help, the database reads <em>all 50,000 rows</em> and checks each — a "full scan," slow and getting slower. An <strong>index</strong> is a pre-sorted lookup structure.</p>
+  <div class="box analogy"><span class="label">Analogy</span>
+  An index is the <strong>index at the back of a book</strong>. To find every mention of "Redis," you don't read all 300 pages — you flip to the index and jump straight there. A database index does the same: it turns "read everything" into "jump straight to the matches." We add an index to exactly the columns we filter or sort by (like <code>user_id</code>). In Chapter 9 you'll see a real measurement where an index turns a 48-millisecond query into a 0.08-millisecond one.</div>
+
+  <h3>Migrations: version control for your database shape</h3>
+  <p>Your set of tables and columns — the <strong>schema</strong> — changes as the app grows. You never edit the live database by hand. Instead you write <strong>migrations</strong>: small, numbered, ordered scripts that each describe one change ("create this table," "add this column"). They're like Git commits, but for your database structure. We use a tool called <strong>Alembic</strong> and apply them with one command: <code>alembic upgrade head</code> ("bring the database up to the latest version"). The same command, run on your laptop or on production, produces the same schema — no "it works on my machine."</p>
+
+  <div class="box whenuse"><span class="label">When you'll use this elsewhere</span>
+  Almost every app needs a database. Reach for a <strong>relational</strong> one (Postgres, MySQL) when your data has clear relationships and you want guarantees and powerful queries — which is most of the time. Reach for a <strong>document</strong> database (MongoDB) when your data is loose and schema-free. Whatever you choose: index the columns you query, and always evolve the schema through migrations.</div>
+</section>
+
+<!-- ============================ CH4 ============================ -->
+<section class="chapter">
+  <h2>4 &nbsp;Authentication (How Login Really Works)</h2>
+
+  <p>HTTP is <strong>stateless</strong>: every request arrives with no memory of the ones before it. So how does the server know who's making a request, without you sending your password every single time? The modern answer is a <strong>token</strong> — specifically a <strong>JWT</strong>.</p>
+
+  <h3>What a JWT is</h3>
+  <p>A <strong>JWT</strong> (JSON Web Token, said "jot") is a small, <strong>digitally signed</strong> piece of text that says, in effect: "the bearer of this is user X, issued at time Y, expiring at time Z." When you log in, the auth provider signs a token with a secret key and gives it to you. Your app sends it with every request. The server can mathematically verify the signature.</p>
+
+  <div class="box analogy"><span class="label">Analogy</span>
+  A JWT is like a <strong>festival wristband</strong>. At the entrance you show ID once; they give you a tamper-proof wristband. After that, you flash the wristband to get into stages — nobody re-checks your ID. The wristband is hard to forge (it's signed), and security can verify it on sight without calling head office. A JWT works the same way: prove who you are once, then carry a verifiable token.</div>
+
+  <figure>
+  <svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="arr4" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5b6680"/></marker></defs>
+    <rect x="40" y="30" width="120" height="40" rx="8" fill="#14213d"/><text x="100" y="55" text-anchor="middle" class="svg-white" style="font-size:10px">You log in</text>
+    <line x1="160" y1="50" x2="250" y2="50" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr4)"/>
+    <rect x="252" y="30" width="140" height="40" rx="8" fill="#0f9d58"/><text x="322" y="50" text-anchor="middle" class="svg-white" style="font-size:10px">Supabase Auth</text>
+    <text x="322" y="63" text-anchor="middle" class="svg-white" style="font-size:8px;font-weight:500">checks password</text>
+    <line x1="322" y1="70" x2="322" y2="100" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr4)"/>
+    <text x="430" y="52" class="svg-small">signs &amp; returns a JWT</text>
+
+    <rect x="252" y="104" width="140" height="34" rx="8" fill="#eef4ff" stroke="#1b4dff"/><text x="322" y="125" text-anchor="middle" class="svg-label" style="fill:#1b4dff">the JWT (a wristband)</text>
+    <line x1="322" y1="138" x2="322" y2="160" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr4)"/>
+
+    <rect x="40" y="164" width="180" height="40" rx="8" fill="#14213d"/><text x="130" y="184" text-anchor="middle" class="svg-white" style="font-size:10px">Every later request</text>
+    <text x="130" y="197" text-anchor="middle" class="svg-white" style="font-size:8px;font-weight:500">Authorization: Bearer &lt;jwt&gt;</text>
+    <line x1="220" y1="184" x2="300" y2="184" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr4)"/>
+    <rect x="302" y="164" width="150" height="40" rx="8" fill="#1b4dff"/><text x="377" y="184" text-anchor="middle" class="svg-white" style="font-size:10px">Our API verifies it</text>
+    <text x="377" y="197" text-anchor="middle" class="svg-white" style="font-size:8px;font-weight:500">no call back to Supabase</text>
+    <text x="470" y="180" class="svg-small">Verifying is pure math, so it's</text>
+    <text x="470" y="193" class="svg-small">fast — no database lookup.</text>
+  </svg>
+  <figcaption>The login flow. The token is readable by anyone but tamper-proof — change one character and the signature no longer matches.</figcaption>
+  </figure>
+
+  <h3>The crucial distinction: authentication vs authorization</h3>
+  <table>
+    <tr><th>Authentication</th><th>Authorization</th></tr>
+    <tr><td>"<strong>Who are you?</strong>"</td><td>"<strong>Are you allowed to do <em>this</em>?</strong>"</td></tr>
+    <tr><td>Done by verifying the JWT.</td><td>Done in each endpoint (e.g. "is this idea yours?").</td></tr>
+    <tr><td>Output: a trusted user id.</td><td>Output: allow or deny.</td></tr>
+  </table>
+  <p>A valid token proves who you are; it does <em>not</em> automatically grant access to a specific idea. You need both checks. Skipping the second is one of the most common security holes in real apps.</p>
+
+  <div class="box inproject"><span class="label">In StartupIQ — a real debugging story</span>
+  We chose <strong>Supabase Auth</strong> so we never had to build login, password hashing, or session storage ourselves — a huge amount of security-critical work, handled for us. Getting it wired up took three rounds of debugging (a wrong signing algorithm, then a missing crypto library), all surfaced by writing a tiny script that printed the <em>real</em> error instead of a vague "invalid token." The lesson that outlives the bug: when a system gives you a generic failure, make it tell you the truth before you theorise. Debugging by inspection — not guessing — is the actual skill.</div>
+
+  <div class="box whenuse"><span class="label">When you'll use this elsewhere</span>
+  Nearly every app with users needs auth. Use a managed provider (Supabase Auth, Auth0, Firebase Auth, Clerk) unless you have a strong reason not to — rolling your own login securely is genuinely hard. Whatever you use, the JWT pattern (verify a signed token on each request, then separately check permissions) is the standard you'll see everywhere.</div>
+</section>
+
+<!-- ============================ CH5 ============================ -->
+<section class="chapter">
+  <h2>5 &nbsp;Redis: Cache, Queue &amp; Rate Limiter</h2>
+
+  <p><strong>Redis</strong> is an <strong>in-memory data store</strong> — it keeps data in RAM (memory) instead of on disk, which makes it blazingly fast. In StartupIQ it does <em>three different jobs</em>. Learning Redis once gives you all three, which is a big part of why it's everywhere.</p>
+
+  <div class="box analogy"><span class="label">Analogy</span>
+  Think of Redis as the <strong>kitchen's whiteboard and ticket rail</strong> next to the slow oven (your database). The chefs scribble quick notes on it, hang order tickets on it, and tally how many coffees each table has ordered — all things you want fast and don't want to walk to the back office (the database) for. Same board, many uses.</div>
+
+  <figure>
+  <svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg">
+    <rect x="270" y="80" width="160" height="50" rx="10" fill="#dc382d"/>
+    <text x="350" y="103" text-anchor="middle" class="svg-white" style="font-size:13px">REDIS</text>
+    <text x="350" y="120" text-anchor="middle" class="svg-white" style="font-size:8px;font-weight:500">one fast in-memory store</text>
+
+    <rect x="30" y="20" width="180" height="56" rx="9" fill="#fff" stroke="#dc382d" stroke-width="1.6"/>
+    <text x="120" y="42" text-anchor="middle" class="svg-label">1 · Queue</text>
+    <text x="120" y="60" text-anchor="middle" class="svg-small">a line of jobs for the worker</text>
+    <line x1="180" y1="76" x2="285" y2="92" stroke="#dc382d" stroke-width="1.4"/>
+
+    <rect x="490" y="20" width="180" height="56" rx="9" fill="#fff" stroke="#dc382d" stroke-width="1.6"/>
+    <text x="580" y="42" text-anchor="middle" class="svg-label">2 · Cache</text>
+    <text x="580" y="60" text-anchor="middle" class="svg-small">remembered answers</text>
+    <line x1="520" y1="76" x2="415" y2="92" stroke="#dc382d" stroke-width="1.4"/>
+
+    <rect x="260" y="150" width="180" height="50" rx="9" fill="#fff" stroke="#dc382d" stroke-width="1.6"/>
+    <text x="350" y="170" text-anchor="middle" class="svg-label">3 · Rate-limit counters</text>
+    <text x="350" y="187" text-anchor="middle" class="svg-small">"how many calls this hour?"</text>
+    <line x1="350" y1="150" x2="350" y2="130" stroke="#dc382d" stroke-width="1.4"/>
+  </svg>
+  <figcaption>One Redis, three roles. The same store is the job queue, the cache, and the rate-limit tally.</figcaption>
+  </figure>
+
+  <h3>Role 1 — Cache: don't recompute what you just computed</h3>
+  <p>A <strong>cache</strong> stores the result of expensive work so a repeat request is instant. The pattern is <strong>read-through</strong>: check the cache first; on a "miss," do the real work, store it, and return it. Every request after that, until the entry expires, is a "hit" — served from Redis without touching the database.</p>
+  <p>The danger is <strong>staleness</strong> (the cached copy is out of date). Two defences: a <strong>TTL</strong> (time-to-live — every entry self-destructs after, say, 60 seconds) and <strong>invalidation</strong> (when the data changes, delete the cached copy so the next read recomputes). In StartupIQ, reading one idea is cached and invalidated whenever you edit it; the dashboard stats are cached with just a TTL because being a minute stale is fine.</p>
+  <div class="box analogy"><span class="label">Analogy</span>
+  A cache is leaving the answer to a question you get asked a lot on a <strong>sticky note on your monitor</strong>. Anyone who asks gets the instant answer. But if the real answer changes, you must throw the note away (invalidate) — or the note will lie. "Cache invalidation" is famously one of the two hard problems in computer science.</div>
+
+  <h3>Role 2 — Queue: a line of work for later</h3>
+  <p>When the API has slow work (an AI call), it doesn't do it itself — it writes a "job" onto a <strong>queue</strong> in Redis. A separate <strong>worker</strong> program takes jobs off the front of the line and does them. We cover this fully in the next chapter; just know the queue lives in Redis.</p>
+
+  <h3>Role 3 — Rate limiter: a budget per user</h3>
+  <p>Each AI evaluation costs real money. A <strong>rate limiter</strong> caps how many requests a user can make in a window of time (e.g. 60 per hour) and rejects the rest with status <code>429 Too Many Requests</code>. The count is kept in Redis. Why Redis and not in the program's memory? Because when you run several copies of the API (Chapter 9–10), they must <em>share</em> one counter — otherwise each copy would grant its own budget and the limit would silently multiply. (You'll see this proven in the Kubernetes chapter.)</p>
+
+  <div class="box whenuse"><span class="label">When you'll use this elsewhere</span>
+  Reach for Redis whenever you need something <em>fast</em> and <em>shared</em> across your servers: caching database results or API responses, a job queue, rate limiting, session storage, real-time leaderboards, or a counter. Its speed comes from living in memory; the trade-off is that memory is smaller and more expensive than disk, so you cache what's hot, not everything.</div>
+</section>
+
+<!-- ============================ CH6 ============================ -->
+<section class="chapter">
+  <h2>6 &nbsp;Background Jobs &amp; Workers</h2>
+
+  <p>This is one of the most important patterns in all of backend engineering: <strong>move slow work out of the request and into a background worker.</strong> Learn it once, use it forever — for sending email, processing video, generating reports, or calling an AI.</p>
+
+  <h3>The problem</h3>
+  <p>An AI call takes 10–20 seconds. If the API does it inside the request, two bad things happen: the user's browser is frozen the whole time, and the server's limited "workers" are each tied up doing nothing but waiting — ten users could bring it to its knees. That's a scalability disaster.</p>
+
+  <h3>The cast</h3>
+  <ul>
+    <li><strong>Job</strong> — a unit of work to do later ("run competitor research for idea X"). We also save each as a row in a <code>jobs</code> table so we have a durable record.</li>
+    <li><strong>Queue</strong> — a line jobs wait in. Producers add to the back; the worker takes from the front. Lives in Redis.</li>
+    <li><strong>Worker</strong> — a <em>separate program</em> that loops: take a job, do it, repeat. We use <strong>Arq</strong> (a small, Python-async job library on top of Redis).</li>
+  </ul>
+
+  <figure>
+  <svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="arr6" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5b6680"/></marker></defs>
+    <rect x="20" y="30" width="110" height="38" rx="8" fill="#1b4dff"/><text x="75" y="54" text-anchor="middle" class="svg-white" style="font-size:10px">API</text>
+    <text x="20" y="88" class="svg-small">1. records a job (Postgres)</text>
+    <text x="20" y="101" class="svg-small">2. drops it on the queue</text>
+    <text x="20" y="114" class="svg-small">3. instantly returns 202 + id</text>
+    <line x1="130" y1="49" x2="250" y2="49" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr6)"/>
+
+    <!-- queue -->
+    <rect x="252" y="28" width="180" height="42" rx="8" fill="#fff" stroke="#dc382d" stroke-width="1.6"/>
+    <rect x="262" y="36" width="26" height="26" rx="4" fill="#dc382d"/><rect x="292" y="36" width="26" height="26" rx="4" fill="#f08"/><rect x="322" y="36" width="26" height="26" rx="4" fill="#fb3"/>
+    <text x="395" y="53" class="svg-small">queue</text>
+    <line x1="432" y1="49" x2="540" y2="49" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr6)"/>
+
+    <!-- worker -->
+    <rect x="542" y="30" width="140" height="38" rx="8" fill="#7c3aed"/><text x="612" y="54" text-anchor="middle" class="svg-white" style="font-size:10px">Worker (separate)</text>
+    <line x1="612" y1="68" x2="612" y2="100" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr6)"/>
+    <rect x="540" y="104" width="150" height="34" rx="8" fill="#14213d"/><text x="615" y="125" text-anchor="middle" class="svg-white" style="font-size:9px">calls the AI (15s)</text>
+    <line x1="615" y1="138" x2="615" y2="166" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr6)"/>
+    <rect x="520" y="170" width="190" height="34" rx="8" fill="#0f9d58"/><text x="615" y="191" text-anchor="middle" class="svg-white" style="font-size:9px">writes result to the job row</text>
+
+    <text x="75" y="170" class="svg-label" style="fill:#1b4dff">Meanwhile…</text>
+    <rect x="20" y="178" width="110" height="34" rx="8" fill="#14213d"/><text x="75" y="199" text-anchor="middle" class="svg-white" style="font-size:9px">Client polls</text>
+    <text x="20" y="228" class="svg-small">GET /jobs/{id} → "running"</text>
+    <text x="20" y="241" class="svg-small">→ "completed" + result 🎉</text>
+  </svg>
+  <figcaption>The API just records and enqueues, then answers instantly. The worker — a different process — does the slow part where no one waits.</figcaption>
+  </figure>
+
+  <p>The status <code>202 Accepted</code> means exactly "I've accepted your request and will process it, but I'm not done." Perfect for "your job is queued." The worker runs in its own process (its own terminal, or its own container/pod later), so a flood of slow AI calls never slows down the API.</p>
+
+  <div class="box inproject"><span class="label">In StartupIQ</span>
+  Clicking "Evaluate" on a tile sends a <code>POST</code> that returns a <code>job_id</code> in milliseconds; the tile then polls every 2 seconds and shows <em>Queued… → Analyzing… → result</em>. You can fire all six tiles at once and they run in parallel — because the slow work is off the request path. To handle more evaluations at once, you simply run more worker copies.</div>
+
+  <div class="box whenuse"><span class="label">When you'll use this elsewhere</span>
+  Any time a request triggers work that's slow or can fail and retry — sending emails, resizing images, generating PDFs/reports, charging a card, calling a third-party API, video transcoding — push it to a queue and a worker. Popular tools: Arq/Celery/RQ (Python), BullMQ (Node), Sidekiq (Ruby). The shape is always the same: enqueue, work, report back.</div>
+</section>
+
+<!-- ============================ CH7 ============================ -->
+<section class="chapter">
+  <h2>7 &nbsp;Webhooks (Event-Driven Design)</h2>
+
+  <p>So far the app only speaks when spoken to: a client asks, the server answers. A <strong>webhook</strong> flips that — it lets your server <em>proactively notify</em> another system when something happens, without being asked. "Your evaluation is ready." "A payment cleared." It's the reverse of a normal API call.</p>
+
+  <div class="box analogy"><span class="label">Analogy</span>
+  A normal API call is <strong>you phoning the pizza shop to ask "is it ready?"</strong> over and over. A webhook is <strong>giving them your number so they text you when it's out of the oven.</strong> You register a URL; they call it when the event happens.</div>
+
+  <figure>
+  <svg viewBox="0 0 700 170" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="arr7" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5b6680"/></marker></defs>
+    <rect x="30" y="60" width="160" height="44" rx="8" fill="#0f9d58"/><text x="110" y="80" text-anchor="middle" class="svg-white" style="font-size:10px">Evaluation finishes</text>
+    <text x="110" y="94" text-anchor="middle" class="svg-white" style="font-size:8px;font-weight:500">"event happened"</text>
+    <line x1="190" y1="82" x2="280" y2="82" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr7)"/>
+    <rect x="282" y="60" width="170" height="44" rx="8" fill="#7c3aed"/><text x="367" y="80" text-anchor="middle" class="svg-white" style="font-size:10px">Sign + POST payload</text>
+    <text x="367" y="94" text-anchor="middle" class="svg-white" style="font-size:8px;font-weight:500">X-StartupIQ-Signature</text>
+    <line x1="452" y1="82" x2="540" y2="82" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr7)"/>
+    <rect x="542" y="60" width="150" height="44" rx="8" fill="#14213d"/><text x="617" y="80" text-anchor="middle" class="svg-white" style="font-size:10px">Your URL</text>
+    <text x="617" y="94" text-anchor="middle" class="svg-white" style="font-size:8px;font-weight:500">(Slack, Zapier, your app)</text>
+    <text x="367" y="140" text-anchor="middle" class="svg-small">If the receiver is down, we retry with growing delays (2s, 4s, 8s…) and log every attempt.</text>
+  </svg>
+  <figcaption>A webhook delivery. Two hard problems hide here: proving it's really from us (signing) and surviving a receiver that's down (retries).</figcaption>
+  </figure>
+
+  <h3>Two real problems, two standard answers</h3>
+  <p><strong>Trust — is it really from us?</strong> The receiver's URL is public; anyone could fake a "done" message. So we <strong>sign</strong> every payload with <strong>HMAC</strong>: we combine the message with a secret key (shared only with the receiver) and a hash function, producing a fingerprint sent in a header. The receiver recomputes the fingerprint over the bytes they received; if it matches, it's provably from us and untampered. This is the same keyed-signature idea as JWTs, now going outward. Stripe and GitHub sign their webhooks exactly this way.</p>
+  <p><strong>Reliability — what if they're down?</strong> We <strong>retry with exponential backoff</strong> (wait 2s, then 4s, then 8s…) up to a few attempts, and record <em>every</em> attempt in an audit log so you can always see what was sent and whether it landed. Because we retry, a receiver might occasionally get the same event twice, so good receivers are <strong>idempotent</strong> (safe to process the same event more than once) — they dedupe on the event id.</p>
+
+  <div class="box whenuse"><span class="label">When you'll use this elsewhere</span>
+  Webhooks turn your app into an integration point. Use them to notify other systems of events ("order shipped," "build finished," "form submitted") — and on the receiving side, you'll consume webhooks from Stripe, GitHub, Slack, and countless SaaS tools. The patterns are universal: verify the signature, return a quick 200, and be idempotent.</div>
+</section>
+
+<!-- ============================ CH8 DOCKER ============================ -->
+<section class="chapter">
+  <h2>8 &nbsp;Docker &amp; Containers</h2>
+
+  <p>You've probably heard "but it works on my machine!" That sentence is the problem Docker solves. Different computers have different operating systems, different versions of Python or Node, different libraries installed. Code that runs on your laptop can break on a server because the <em>environment</em> is different.</p>
+
+  <h3>What a container is</h3>
+  <p>A <strong>container</strong> packages your application <em>together with its entire environment</em> — the operating-system libraries, the language runtime, the dependencies, your code — into one sealed, runnable box. If it runs in the container on your laptop, it runs <em>identically</em> in the container on any server, because the container <em>is</em> the environment. The machine no longer matters; the environment travels with the app.</p>
+
+  <div class="box analogy"><span class="label">Analogy</span>
+  A container is a <strong>shipping container</strong>. Before standardized containers, loading a ship meant hand-stacking barrels, sacks, and crates of every shape — slow and chaotic. The steel container changed everything: every crane, truck, and ship handles the same standard box, and it doesn't matter what's inside. Docker did this for software. Your app, whatever it's made of, goes in a standard box that any server can run the same way.</div>
+
+  <h3>Image vs container — the one distinction to nail</h3>
+  <table>
+    <tr><th>Image</th><th>Container</th></tr>
+    <tr><td>The sealed, read-only <strong>template</strong>. You build it once.</td><td>A <strong>running instance</strong> of an image.</td></tr>
+    <tr><td>Like a <em>class</em> in code, or a cooking <em>recipe</em>.</td><td>Like an <em>object</em>, or the actual <em>meal</em> you cook.</td></tr>
+  </table>
+  <p>One image can start many containers — which is exactly how we'll scale later (run 3 copies of the same API image).</p>
+
+  <h3>The Dockerfile: the recipe</h3>
+  <p>A <strong>Dockerfile</strong> is a script of steps that builds an image. Here's StartupIQ's backend one, annotated:</p>
+  <pre><code>FROM python:3.11-slim          # 1. start from a minimal Linux with Python 3.11
+WORKDIR /app                   # 2. work inside /app
+COPY pyproject.toml ./         # 3. copy the dependency list...
+COPY app ./app                 #    ...and our code
+RUN pip install --no-cache-dir .   # 4. install everything
+EXPOSE 8000                    # 5. the app listens on port 8000
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]  # 6. how to run it</code></pre>
+  <p>Read it as instructions to a brand-new machine: start from Python, copy our stuff in, install it, here's how to run it. Each line is a cached <strong>layer</strong>, so rebuilds are fast when only your code changed.</p>
+  <div class="box warn"><span class="label">A classic gotcha</span>
+  Inside a container, <code>localhost</code> means "only this container" — not your machine and not other containers. That's why the run command binds to <code>0.0.0.0</code> ("all network interfaces"), so other containers can reach it. This trips up everyone exactly once.</div>
+
+  <figure>
+  <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+    <text x="60" y="24" class="svg-label">Dockerfile</text>
+    <rect x="20" y="32" width="150" height="120" rx="8" fill="#fff" stroke="#1b4dff" stroke-width="1.6"/>
+    <text x="32" y="54" class="svg-small">FROM python</text>
+    <text x="32" y="72" class="svg-small">COPY code</text>
+    <text x="32" y="90" class="svg-small">RUN install</text>
+    <text x="32" y="108" class="svg-small">CMD run</text>
+    <text x="32" y="140" class="svg-small" style="fill:#1b4dff">"the recipe"</text>
+
+    <text x="300" y="100" class="svg-small" style="font-size:18px">⟶</text>
+    <text x="250" y="80" class="svg-small">docker build</text>
+
+    <text x="420" y="24" class="svg-label">Image</text>
+    <rect x="380" y="32" width="120" height="120" rx="8" fill="#1b4dff"/>
+    <text x="440" y="92" text-anchor="middle" class="svg-white">📦</text>
+    <text x="440" y="120" text-anchor="middle" class="svg-white" style="font-size:9px">sealed box</text>
+    <text x="380" y="172" class="svg-small">"built once"</text>
+
+    <text x="540" y="60" class="svg-small">docker run</text>
+    <text x="525" y="92" class="svg-small" style="font-size:16px">⟶</text>
+    <rect x="560" y="32" width="56" height="40" rx="6" fill="#7c3aed"/><text x="588" y="56" text-anchor="middle" class="svg-white" style="font-size:9px">run 1</text>
+    <rect x="560" y="80" width="56" height="40" rx="6" fill="#7c3aed"/><text x="588" y="104" text-anchor="middle" class="svg-white" style="font-size:9px">run 2</text>
+    <rect x="560" y="128" width="56" height="40" rx="6" fill="#7c3aed"/><text x="588" y="152" text-anchor="middle" class="svg-white" style="font-size:9px">run 3</text>
+    <text x="560" y="186" class="svg-small">containers</text>
+    <text x="380" y="205" class="svg-small">One image → many identical running containers.</text>
+  </svg>
+  <figcaption>Dockerfile builds an Image; an Image runs as one or many Containers.</figcaption>
+  </figure>
+
+  <h3>Docker Compose: running many containers together</h3>
+  <p>One image is one container, but StartupIQ is <em>five</em> programs that must run together. <strong>Docker Compose</strong> describes a multi-container app in one YAML file and runs them as a unit with a single command: <code>docker compose up</code>. Three big ideas live in that file:</p>
+  <ul>
+    <li><strong>Service names become hostnames.</strong> Compose puts all containers on a private network where each is reachable by its service name. That's why the API reaches Redis at <code>redis://redis:6379</code> — <code>redis</code> is literally the other container's name. No IP addresses, no fragile wiring.</li>
+    <li><strong>Volumes persist data.</strong> Containers are disposable; delete one and its internal files vanish. A named <strong>volume</strong> is storage that lives <em>outside</em> a container's life, so Redis's data survives a restart.</li>
+    <li><strong>One front door.</strong> Only the nginx container exposes a port to your machine; everything else is internal. (More on that in the next chapter.)</li>
+  </ul>
+
+  <figure>
+  <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+    <rect x="20" y="20" width="660" height="170" rx="12" fill="#f4f6fb" stroke="#d7deea"/>
+    <text x="40" y="44" class="svg-label">One private network (docker compose up)</text>
+    <rect x="50" y="58" width="110" height="44" rx="8" fill="#64748b"/><text x="105" y="84" text-anchor="middle" class="svg-white" style="font-size:9px">nginx :80</text>
+    <rect x="200" y="58" width="110" height="44" rx="8" fill="#1b4dff"/><text x="255" y="84" text-anchor="middle" class="svg-white" style="font-size:9px">api</text>
+    <rect x="350" y="58" width="110" height="44" rx="8" fill="#1b4dff"/><text x="405" y="84" text-anchor="middle" class="svg-white" style="font-size:9px">frontend</text>
+    <rect x="200" y="128" width="110" height="44" rx="8" fill="#7c3aed"/><text x="255" y="154" text-anchor="middle" class="svg-white" style="font-size:9px">worker</text>
+    <rect x="350" y="128" width="110" height="44" rx="8" fill="#dc382d"/><text x="405" y="154" text-anchor="middle" class="svg-white" style="font-size:9px">redis</text>
+    <rect x="500" y="128" width="150" height="44" rx="8" fill="#0f9d58"/><text x="575" y="150" text-anchor="middle" class="svg-white" style="font-size:8px">volume (redis data)</text>
+    <line x1="160" y1="80" x2="200" y2="80" stroke="#5b6680" stroke-width="1.3"/>
+    <line x1="310" y1="80" x2="350" y2="80" stroke="#5b6680" stroke-width="1.3"/>
+    <line x1="255" y1="102" x2="380" y2="128" stroke="#5b6680" stroke-width="1.3"/>
+    <line x1="255" y1="128" x2="380" y2="102" stroke="#5b6680" stroke-width="1.3"/>
+    <line x1="405" y1="172" x2="500" y2="160" stroke="#5b6680" stroke-width="1.3"/>
+    <text x="620" y="52" class="svg-small">:80 → you</text>
+  </svg>
+  <figcaption>Five services as one app. They find each other by name; only nginx is exposed to the outside.</figcaption>
+  </figure>
+
+  <div class="box whenuse"><span class="label">When you'll use this elsewhere</span>
+  Use <strong>Docker</strong> for basically any app you want to run reliably somewhere other than your laptop. Use <strong>Compose</strong> to run a whole multi-service app locally with one command (it's the standard for local development of anything non-trivial). And containers are the foundation everything else stands on — the cloud and Kubernetes both run <em>containers</em>. Master this and the next chapters get much easier.</div>
+</section>
+
+<!-- ============================ CH9 SCALING ============================ -->
+<section class="chapter">
+  <h2>9 &nbsp;Load Balancers &amp; Scaling</h2>
+
+  <p>"Scaling" means: as more users arrive, how do you keep the app fast instead of grinding to a halt? This chapter explains the two ways to scale, the device that makes one of them possible (the load balancer), and how you <em>measure</em> whether you're actually fast.</p>
+
+  <h3>First, how do you even know if it's fast? Two numbers</h3>
+  <p>You measure with a <strong>load test</strong> — a tool (we used <strong>Locust</strong>) that simulates many users hammering the app at once. It reports two very different things:</p>
+  <ul>
+    <li><strong>Throughput</strong> (requests per second, "RPS") — how much work the whole system gets through. Higher is better; it's your <em>capacity</em>.</li>
+    <li><strong>Latency</strong> — how long <em>one</em> request takes. But the average lies; what matters is the distribution, measured in <strong>percentiles</strong>:</li>
+  </ul>
+  <table>
+    <tr><th>Percentile</th><th>Means</th></tr>
+    <tr><td><strong>p50</strong> (median)</td><td>Half of requests were faster than this — the "typical" feel.</td></tr>
+    <tr><td><strong>p95</strong></td><td>95% were faster — i.e. the slowest 1 in 20. <em>This is what frustrated users feel.</em></td></tr>
+    <tr><td><strong>p99</strong></td><td>The slowest 1 in 100 — your worst case.</td></tr>
+  </table>
+  <div class="box analogy"><span class="label">Analogy</span>
+  Imagine a coffee shop. <strong>Throughput</strong> is how many coffees go out per minute. <strong>Latency</strong> is how long <em>your</em> coffee took. The owner brags about the average wait — but if 1 in 20 customers waits 5 minutes (a bad p95), those people are furious, no matter how good the average is. Real engineers set targets on p95/p99, never averages.</div>
+
+  <div class="box inproject"><span class="label">In StartupIQ — a real result</span>
+  Our load test showed cached endpoints answering in <strong>6 milliseconds</strong> (median) while the uncached list took <strong>410 ms</strong> — the cache was making a ~70× difference. And the dashboard's p99 spiked to 1300 ms: that was the single cold "cache miss" (the first request, before anything was cached). The percentiles told the whole story; the average hid it.</div>
+
+  <h3>The two ways to scale</h3>
+  <figure>
+  <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+    <text x="40" y="26" class="svg-label">Vertical — a bigger machine ("scale up")</text>
+    <rect x="40" y="36" width="50" height="40" rx="6" fill="#94a3b8"/><text x="65" y="61" text-anchor="middle" class="svg-white" style="font-size:9px">small</text>
+    <text x="100" y="62" class="svg-small" style="font-size:16px">⟶</text>
+    <rect x="130" y="36" width="80" height="80" rx="6" fill="#1b4dff"/><text x="170" y="80" text-anchor="middle" class="svg-white" style="font-size:9px">BIG</text>
+    <text x="40" y="140" class="svg-small">Simple. But there's a ceiling (only so big a machine</text>
+    <text x="40" y="154" class="svg-small">exists), it gets expensive fast, and if it dies, everything dies.</text>
+
+    <line x1="360" y1="30" x2="360" y2="200" stroke="#d7deea"/>
+
+    <text x="400" y="26" class="svg-label">Horizontal — more copies ("scale out")</text>
+    <rect x="400" y="40" width="56" height="32" rx="6" fill="#1b4dff"/><text x="428" y="61" text-anchor="middle" class="svg-white" style="font-size:9px">copy</text>
+    <rect x="470" y="40" width="56" height="32" rx="6" fill="#1b4dff"/><text x="498" y="61" text-anchor="middle" class="svg-white" style="font-size:9px">copy</text>
+    <rect x="540" y="40" width="56" height="32" rx="6" fill="#1b4dff"/><text x="568" y="61" text-anchor="middle" class="svg-white" style="font-size:9px">copy</text>
+    <rect x="610" y="40" width="56" height="32" rx="6" fill="#1b4dff"/><text x="638" y="61" text-anchor="middle" class="svg-white" style="font-size:9px">copy</text>
+    <text x="400" y="110" class="svg-small">Add more identical copies behind a load balancer.</text>
+    <text x="400" y="124" class="svg-small">3 copies ≈ 3× capacity, 10 copies ≈ 10×. No ceiling.</text>
+    <text x="400" y="138" class="svg-small">If one dies, the others carry on. This is the real answer</text>
+    <text x="400" y="152" class="svg-small">for web apps — and what Kubernetes (next chapter) automates.</text>
+  </svg>
+  <figcaption>Vertical scaling = a bigger box. Horizontal scaling = more boxes. Web apps lean on horizontal.</figcaption>
+  </figure>
+
+  <h3>The load balancer: the traffic cop</h3>
+  <p>If you have many copies of the API, something must decide which copy each request goes to. That's a <strong>load balancer</strong>: a single entry point that spreads incoming requests across all the healthy copies.</p>
+  <div class="box analogy"><span class="label">Analogy</span>
+  A load balancer is the <strong>"please wait to be seated" host at a busy restaurant</strong>. Customers form one line at the door; the host sends each party to whichever table (server) is free. Diners never pick a table themselves, and if one section closes, the host just stops seating there. The load balancer does this for requests — and it also stops sending traffic to a copy that has crashed (it checks each copy's <code>/health</code> endpoint).</p></div>
+
+  <figure>
+  <svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="arr9" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5b6680"/></marker></defs>
+    <rect x="40" y="90" width="90" height="40" rx="8" fill="#14213d"/><text x="85" y="115" text-anchor="middle" class="svg-white" style="font-size:9px">Users</text>
+    <line x1="130" y1="110" x2="220" y2="110" stroke="#5b6680" stroke-width="1.8" marker-end="url(#arr9)"/>
+    <rect x="222" y="86" width="120" height="48" rx="10" fill="#64748b"/><text x="282" y="108" text-anchor="middle" class="svg-white" style="font-size:10px">Load Balancer</text>
+    <text x="282" y="123" text-anchor="middle" class="svg-white" style="font-size:8px;font-weight:500">spreads the load</text>
+
+    <line x1="342" y1="100" x2="470" y2="50" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr9)"/>
+    <line x1="342" y1="110" x2="470" y2="110" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr9)"/>
+    <line x1="342" y1="120" x2="470" y2="170" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr9)"/>
+    <rect x="472" y="32" width="120" height="38" rx="8" fill="#1b4dff"/><text x="532" y="56" text-anchor="middle" class="svg-white" style="font-size:9px">API copy 1</text>
+    <rect x="472" y="92" width="120" height="38" rx="8" fill="#1b4dff"/><text x="532" y="116" text-anchor="middle" class="svg-white" style="font-size:9px">API copy 2</text>
+    <rect x="472" y="152" width="120" height="38" rx="8" fill="#1b4dff"/><text x="532" y="176" text-anchor="middle" class="svg-white" style="font-size:9px">API copy 3</text>
+    <line x1="592" y1="51" x2="640" y2="100" stroke="#0f9d58" stroke-width="1.4"/>
+    <line x1="592" y1="111" x2="640" y2="110" stroke="#0f9d58" stroke-width="1.4"/>
+    <line x1="592" y1="171" x2="640" y2="120" stroke="#0f9d58" stroke-width="1.4"/>
+    <rect x="642" y="92" width="46" height="36" rx="7" fill="#dc382d"/><text x="665" y="108" text-anchor="middle" class="svg-white" style="font-size:8px">shared</text><text x="665" y="120" text-anchor="middle" class="svg-white" style="font-size:8px">Redis</text>
+  </svg>
+  <figcaption>One front door, three workers behind it — plus one shared Redis the copies all use (see below).</figcaption>
+  </figure>
+
+  <h3>The catch that ties the whole book together: stateless copies</h3>
+  <p>You can only run many interchangeable copies if every copy is <strong>stateless</strong> — it keeps nothing important in its own memory. Why? Imagine the rate-limit counter lived inside each API copy's memory. With 3 copies, a user would get 3 separate budgets (one per copy), and the limit would silently triple. Chaos.</p>
+  <p>That's why, from the very beginning, StartupIQ stores all shared state — the rate-limit counters, the cache, the job queue — in <strong>Redis</strong>, and all data in <strong>Postgres</strong>. The API copies hold nothing; they all read and write the same shared Redis and database. So any copy can serve any request and they all agree. <em>This single design choice is what makes horizontal scaling possible</em> — and in the next chapter you'll watch it proven (5 successes, not 15).</p>
+
+  <div class="box whenuse"><span class="label">When you'll use this</span>
+  Scale <strong>vertically</strong> first for quick wins (a bigger database, more RAM) — it's the least effort. Scale <strong>horizontally</strong> when you need real capacity or resilience for the stateless parts (your web/API servers). Always design those servers to be stateless (state in a database/cache) so horizontal scaling stays correct. And whenever you're unsure if something is fast enough — <em>measure</em> with a load test and read the p95/p99, don't guess.</div>
+</section>
+
+<!-- ============================ CH10 KUBERNETES ============================ -->
+<section class="chapter">
+  <h2>10 &nbsp;Kubernetes</h2>
+
+  <p>Docker Compose (Chapter 8) is great for running the stack on <em>one</em> machine. But the moment you want <em>many</em> copies of a service, automatic restarts when something crashes, updates with no downtime, and automatic scaling under load — you've outgrown Compose. That's the job of an <strong>orchestrator</strong>, and <strong>Kubernetes</strong> (often written "k8s") is the industry standard.</p>
+
+  <h3>What Kubernetes is, in one breath</h3>
+  <p>You give Kubernetes a <em>description of what you want</em> — "I want 3 copies of the API, 1 worker, 1 Redis, reachable at this address" — and it works <strong>continuously to make reality match that description</strong>. A copy crashes? It starts a new one. A machine dies? It moves the work elsewhere. You ask for 5 copies instead of 3? It creates 2 more. You stop telling it <em>how</em> and start telling it <em>what you want</em>; it handles the how, forever.</p>
+
+  <div class="box analogy"><span class="label">Analogy</span>
+  Kubernetes is an <strong>air-traffic controller for your containers</strong>. You don't fly the planes (run containers) yourself. You declare the schedule ("3 flights to this gate"); the controller continuously directs planes, reroutes around a closed runway, and adds flights when demand spikes — keeping the whole airport matching the plan without you micromanaging each plane.</div>
+
+  <h3>The five nouns you actually need</h3>
+  <p>Kubernetes has a hundred concepts. You need five. You write each as a <strong>YAML</strong> file (a description) and apply it with <code>kubectl apply</code> (<code>kubectl</code> is the command-line tool for talking to a cluster).</p>
+
+  <figure>
+  <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+    <rect x="20" y="40" width="660" height="245" rx="14" fill="#f4f6fb" stroke="#d7deea"/>
+    <text x="40" y="30" class="svg-label">The Cluster</text>
+
+    <!-- ingress -->
+    <rect x="270" y="52" width="160" height="40" rx="9" fill="#64748b"/><text x="350" y="72" text-anchor="middle" class="svg-white" style="font-size:10px">Ingress</text>
+    <text x="350" y="85" text-anchor="middle" class="svg-white" style="font-size:8px;font-weight:500">the front door (routes by URL)</text>
+    <line x1="300" y1="92" x2="240" y2="120" stroke="#5b6680" stroke-width="1.4"/>
+    <line x1="400" y1="92" x2="460" y2="120" stroke="#5b6680" stroke-width="1.4"/>
+
+    <!-- api service -->
+    <rect x="60" y="122" width="320" height="150" rx="10" fill="#fff" stroke="#1b4dff" stroke-width="1.6"/>
+    <rect x="80" y="134" width="280" height="30" rx="7" fill="#1b4dff"/><text x="220" y="154" text-anchor="middle" class="svg-white" style="font-size:10px">Service "api" (load-balances + stable name)</text>
+    <text x="95" y="186" class="svg-small">Deployment: "keep 3 pods alive"</text>
+    <rect x="95" y="194" width="80" height="64" rx="7" fill="#dbe4ff" stroke="#1b4dff"/><text x="135" y="224" text-anchor="middle" class="svg-small" style="font-size:9px">Pod</text><text x="135" y="238" text-anchor="middle" class="svg-small" style="font-size:8px">(1 container)</text>
+    <rect x="185" y="194" width="80" height="64" rx="7" fill="#dbe4ff" stroke="#1b4dff"/><text x="225" y="224" text-anchor="middle" class="svg-small" style="font-size:9px">Pod</text>
+    <rect x="275" y="194" width="80" height="64" rx="7" fill="#dbe4ff" stroke="#1b4dff"/><text x="315" y="224" text-anchor="middle" class="svg-small" style="font-size:9px">Pod</text>
+
+    <!-- frontend service -->
+    <rect x="430" y="122" width="230" height="80" rx="10" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+    <rect x="445" y="134" width="200" height="28" rx="7" fill="#7c3aed"/><text x="545" y="153" text-anchor="middle" class="svg-white" style="font-size:9px">Service "frontend"</text>
+    <rect x="510" y="168" width="70" height="26" rx="6" fill="#ede9fe" stroke="#7c3aed"/><text x="545" y="185" text-anchor="middle" class="svg-small" style="font-size:9px">Pod</text>
+
+    <!-- redis -->
+    <rect x="430" y="216" width="230" height="52" rx="10" fill="#fff" stroke="#dc382d" stroke-width="1.6"/>
+    <rect x="510" y="226" width="70" height="32" rx="6" fill="#dc382d"/><text x="545" y="247" text-anchor="middle" class="svg-white" style="font-size:9px">Redis Pod</text>
+    <text x="445" y="240" class="svg-small" style="font-size:8px">Service</text><text x="445" y="251" class="svg-small" style="font-size:8px">"redis"</text>
+  </svg>
+  <figcaption>Five nouns in one picture: Pods run containers; a Deployment keeps N pods alive; a Service is a stable name + load balancer for them; an Ingress is the front door.</figcaption>
+  </figure>
+
+  <table>
+    <tr><th>Noun</th><th>What it is</th></tr>
+    <tr><td><strong>Pod</strong></td><td>The smallest unit: one running container. Roughly "one instance of one of your programs."</td></tr>
+    <tr><td><strong>Deployment</strong></td><td>"Keep N identical pods running." The workhorse. Says <code>replicas: 3</code> → always keep 3 API pods alive; replace any that die; roll out new versions gradually.</td></tr>
+    <tr><td><strong>Service</strong></td><td>A <em>stable address</em> for a set of pods <em>and a load balancer</em>. Pods come and go with changing IPs; the Service gives them one name and spreads traffic across them. (This is the load balancer from Chapter 9, built in.)</td></tr>
+    <tr><td><strong>ConfigMap / Secret</strong></td><td>Configuration injected into pods as environment variables — non-secret in a ConfigMap, sensitive (API keys) in a Secret.</td></tr>
+    <tr><td><strong>Ingress</strong></td><td>The cluster's front door — routes external traffic by URL path to the right Service (the k8s version of nginx).</td></tr>
+  </table>
+
+  <h3>Self-healing, for free</h3>
+  <p>Remember that trivial <code>/health</code> endpoint from Chapter 1? Here's its payoff. You tell Kubernetes to check it:</p>
+  <ul>
+    <li><strong>Readiness probe</strong> — don't send traffic to a pod until <code>/health</code> says 200. So during a deploy, new pods only get requests once they're truly ready.</li>
+    <li><strong>Liveness probe</strong> — if a running pod stops answering <code>/health</code>, assume it's wedged and <strong>restart it automatically.</strong> Your app heals itself at 3 a.m. with no one awake.</li>
+  </ul>
+
+  <h3>Scaling is one command — and autoscaling is automatic</h3>
+  <pre><code>kubectl scale deployment/api --replicas=5     # go from 3 to 5 copies, instantly</code></pre>
+  <p>Kubernetes creates two more pods; the Service immediately starts load-balancing across all five. No code, no downtime. You can even let it scale <em>itself</em>: a <strong>HorizontalPodAutoscaler</strong> watches CPU and adds pods under load, then removes them when idle — the app right-sizes to demand.</p>
+
+  <div class="box inproject"><span class="label">In StartupIQ — proving the design</span>
+  We ran the API as 3 pods, set the limit to 5 requests/minute, and fired 7 requests through the load-balancing front door. Result: <strong>5 succeeded, then 429, 429.</strong> Not 15. If each pod counted in its own memory, three pods would have allowed 5 each. Getting <em>5 total</em> proves the counter lives in <em>shared Redis</em> and the limit holds across the whole fleet. That one result is the entire payoff of building the app stateless — horizontal scaling done <em>correctly</em>.</div>
+
+  <div class="box warn"><span class="label">Honest note for beginners</span>
+  Kubernetes is powerful but heavy. The fiddly part of running it locally is always the same two things: making your built images visible to the cluster, and installing an ingress controller. The <em>concepts</em> (the five nouns) are simple and transfer everywhere; the operational details are where you'll spend time. For a small project, you often don't need Kubernetes at all — a single server with Docker Compose (next chapter, Path B) is plenty. Reach for k8s when you genuinely need many machines, auto-healing, and autoscaling.</div>
+
+  <div class="box whenuse"><span class="label">When you'll use this elsewhere</span>
+  Kubernetes is what large teams use to run lots of services across many machines reliably. You'll meet it at most mid-to-large companies. But the same manifests you write locally run on any managed cluster (Google GKE, AWS EKS, Azure AKS, DigitalOcean) — only "where's the cluster" changes. Learn the five nouns and you can read and write k8s anywhere.</div>
+</section>
+
+<!-- ============================ CH11 GITHUB ============================ -->
+<section class="chapter">
+  <h2>11 &nbsp;GitHub &amp; GitHub Actions (CI/CD)</h2>
+
+  <h3>Git and GitHub — the difference</h3>
+  <p><strong>Git</strong> is a tool on your computer that tracks the history of your code — every change, who made it, and the ability to go back in time. <strong>GitHub</strong> is a website that <em>hosts</em> your Git repositories in the cloud, so you can back them up, share them, and collaborate.</p>
+  <div class="box analogy"><span class="label">Analogy</span>
+  Git is the <strong>"track changes" + version history in a document</strong> — every save is a labelled snapshot you can return to. GitHub is <strong>Google Docs in the cloud</strong> where that document lives so others can see it and work on it. Git = the tool; GitHub = the place it lives online.</div>
+  <p>The everyday commands: <code>git add</code> (stage your changes), <code>git commit</code> (save a labelled snapshot locally), <code>git push</code> (upload your commits to GitHub).</p>
+
+  <div class="box warn"><span class="label">The #1 rule: never commit secrets</span>
+  Your real API keys live in <code>.env</code> files. If you commit them to GitHub, you've published your passwords to anyone who can see the repo — a very common, very costly mistake. A <code>.gitignore</code> file lists what Git must never include (all <code>.env</code> files, <code>node_modules</code>, etc.). Always check <code>git status</code> before pushing to confirm no secret file is staged.</div>
+
+  <h3>What CI/CD is</h3>
+  <p>By itself, <code>git push</code> just <em>stores your code</em> on GitHub — nothing else. But you can attach an automated robot that runs every time you push. That robot is <strong>CI/CD</strong>:</p>
+  <ul>
+    <li><strong>CI — Continuous Integration:</strong> every push automatically <em>runs your tests and builds the project</em>, so a bug is caught within a minute, not discovered in production next week.</li>
+    <li><strong>CD — Continuous Delivery:</strong> when code lands on the main branch, it automatically <em>builds and publishes the deployable artifacts</em> (our Docker images), ready to ship.</li>
+  </ul>
+  <div class="box analogy"><span class="label">Analogy</span>
+  CI/CD is a <strong>factory quality-control line</strong> bolted to your code. Raw material (your code) goes in; it's automatically inspected (tests), assembled (build), and packaged (images) — the same way every single time, so no human forgets a step and no broken product ships.</div>
+
+  <h3>GitHub Actions: the robot</h3>
+  <p><strong>GitHub Actions</strong> is GitHub's built-in automation. You describe a <em>workflow</em> in a YAML file at <code>.github/workflows/ci.yml</code>, and GitHub runs it on its own throwaway servers whenever you push. (No workflow file = no automation — that's why your past projects had no checks. CI/CD is opt-in, switched on by adding this one file.)</p>
+
+  <figure>
+  <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="arr11" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5b6680"/></marker></defs>
+    <rect x="20" y="80" width="110" height="44" rx="8" fill="#14213d"/><text x="75" y="100" text-anchor="middle" class="svg-white" style="font-size:10px">git push</text><text x="75" y="114" text-anchor="middle" class="svg-white" style="font-size:8px;font-weight:500">your code</text>
+    <line x1="130" y1="102" x2="175" y2="102" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr11)"/>
+
+    <rect x="177" y="70" width="120" height="30" rx="7" fill="#0f9d58"/><text x="237" y="90" text-anchor="middle" class="svg-white" style="font-size:9px">① run tests</text>
+    <rect x="177" y="106" width="120" height="30" rx="7" fill="#0f9d58"/><text x="237" y="126" text-anchor="middle" class="svg-white" style="font-size:9px">② build frontend</text>
+    <line x1="297" y1="102" x2="345" y2="102" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr11)"/>
+
+    <rect x="347" y="80" width="150" height="44" rx="8" fill="#1b4dff"/><text x="422" y="100" text-anchor="middle" class="svg-white" style="font-size:9px">③ build &amp; publish</text><text x="422" y="114" text-anchor="middle" class="svg-white" style="font-size:8px;font-weight:500">Docker images</text>
+    <line x1="497" y1="102" x2="545" y2="102" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr11)"/>
+
+    <rect x="547" y="80" width="135" height="44" rx="8" fill="#7c3aed"/><text x="614" y="100" text-anchor="middle" class="svg-white" style="font-size:9px">Registry</text><text x="614" y="114" text-anchor="middle" class="svg-white" style="font-size:8px;font-weight:500">ghcr.io (storage)</text>
+
+    <text x="237" y="160" text-anchor="middle" class="svg-small">runs on every push &amp; pull request</text>
+    <text x="422" y="160" text-anchor="middle" class="svg-small">only on the main branch,</text>
+    <text x="422" y="173" text-anchor="middle" class="svg-small">and only if ① and ② passed</text>
+  </svg>
+  <figcaption>StartupIQ's pipeline. The guards matter: images only publish after tests pass, and only on main — so broken code can never ship.</figcaption>
+  </figure>
+
+  <p>A lovely payoff appears here: our tests are <strong>hermetic</strong> (they fake Redis, the AI, and auth), so they run on a bare server with <em>no secrets and no database</em>. A test suite that needed real infrastructure couldn't run in CI; ours can — because we designed every dependency to be swappable. The design choice we made for testability is exactly what makes automated CI possible.</p>
+
+  <div class="box inproject"><span class="label">In StartupIQ — a real CI bug</span>
+  The first pipeline run failed in a way that <em>never</em> happened locally: a piece of code built a network client at import time using a config value, and in CI that value was empty (no <code>.env</code>), so it crashed before any test ran. The fix — build the client lazily, on first use — and the lesson: <em>don't do work that depends on configuration at import time.</em> This is exactly why CI is valuable: it runs your code in a clean, secret-free environment and catches assumptions your laptop was quietly hiding.</div>
+
+  <h3>The crucial clarification: a green pipeline is NOT a deployed app</h3>
+  <p>This confuses almost everyone. When the pipeline goes green, GitHub did <strong>not</strong> put your app online. It tested your code and <em>packaged</em> it into images sitting in storage. Nothing is <em>running</em>. Your project exists in three separate states, and only one of them ever serves users:</p>
+
+  <figure>
+  <svg viewBox="0 0 700 150" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="arr11b" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5b6680"/></marker></defs>
+    <rect x="20" y="50" width="180" height="60" rx="9" fill="#fff" stroke="#14213d" stroke-width="1.6"/>
+    <text x="110" y="74" text-anchor="middle" class="svg-label">1 · Source code</text>
+    <text x="110" y="92" text-anchor="middle" class="svg-small">on github.com — "the recipe"</text>
+    <line x1="200" y1="80" x2="250" y2="80" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr11b)"/>
+    <rect x="252" y="50" width="180" height="60" rx="9" fill="#eef4ff" stroke="#1b4dff" stroke-width="1.6"/>
+    <text x="342" y="74" text-anchor="middle" class="svg-label" style="fill:#1b4dff">2 · Built images</text>
+    <text x="342" y="92" text-anchor="middle" class="svg-small">in the registry — "the meal kit"</text>
+    <line x1="432" y1="80" x2="482" y2="80" stroke="#5b6680" stroke-width="1.6" marker-end="url(#arr11b)"/>
+    <rect x="484" y="50" width="196" height="60" rx="9" fill="#f0fae0" stroke="#7bb800" stroke-width="1.6"/>
+    <text x="582" y="74" text-anchor="middle" class="svg-label" style="fill:#5a8a00">3 · A running app</text>
+    <text x="582" y="92" text-anchor="middle" class="svg-small">on a server — "the meal served"</text>
+    <text x="110" y="135" text-anchor="middle" class="svg-small">✅ you have this</text>
+    <text x="342" y="135" text-anchor="middle" class="svg-small">✅ CI made this</text>
+    <text x="582" y="135" text-anchor="middle" class="svg-small">❌ separate step — next chapter</text>
+  </svg>
+  <figcaption>CI/CD gets you tested, published images (state 2). Actually running them on a server (state 3, "deploy") is a separate, optional step.</figcaption>
+  </figure>
+
+  <div class="box whenuse"><span class="label">When you'll use this</span>
+  Add CI to <em>any</em> project with more than a throwaway amount of code — even solo. It's the cheapest way to never ship a broken build. GitHub Actions, GitLab CI, and CircleCI all do the same thing. Start with just "run the tests on every push"; add building and publishing later. Most of the value is in that first step.</div>
+</section>
+
+<!-- ============================ CH12 CLOUD ============================ -->
+<section class="chapter">
+  <h2>12 &nbsp;Cloud Deployment: From Code to Live</h2>
+
+  <p>The final step is taking those published images and running them on a public server so real people can use the app. The wonderful thing: <strong>almost nothing about the code changes</strong>, because we built for this all along.</p>
+
+  <h3>The whole journey of a code change</h3>
+  <figure>
+  <svg viewBox="0 0 700 90" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="arr12" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5b6680"/></marker></defs>
+    <rect x="10" y="30" width="110" height="36" rx="7" fill="#14213d"/><text x="65" y="53" text-anchor="middle" class="svg-white" style="font-size:9px">you push</text>
+    <line x1="120" y1="48" x2="150" y2="48" stroke="#5b6680" stroke-width="1.5" marker-end="url(#arr12)"/>
+    <rect x="152" y="30" width="120" height="36" rx="7" fill="#0f9d58"/><text x="212" y="53" text-anchor="middle" class="svg-white" style="font-size:9px">CI tests it</text>
+    <line x1="272" y1="48" x2="302" y2="48" stroke="#5b6680" stroke-width="1.5" marker-end="url(#arr12)"/>
+    <rect x="304" y="30" width="140" height="36" rx="7" fill="#1b4dff"/><text x="374" y="53" text-anchor="middle" class="svg-white" style="font-size:9px">CD publishes image</text>
+    <line x1="444" y1="48" x2="474" y2="48" stroke="#5b6680" stroke-width="1.5" marker-end="url(#arr12)"/>
+    <rect x="476" y="30" width="120" height="36" rx="7" fill="#7c3aed"/><text x="536" y="53" text-anchor="middle" class="svg-white" style="font-size:9px">cloud runs it</text>
+    <line x1="596" y1="48" x2="626" y2="48" stroke="#5b6680" stroke-width="1.5" marker-end="url(#arr12)"/>
+    <text x="660" y="45" class="svg-small">a user</text><text x="660" y="57" class="svg-small">opens it</text>
+  </svg>
+  <figcaption>Fully automated from your <code>git push</code> to a tested, published image — with one deliberate step to run it.</figcaption>
+  </figure>
+
+  <h3>Why so little changes: the 12-Factor payoff</h3>
+  <p>Throughout this project we followed a set of principles called the <strong>Twelve-Factor App</strong>. The headline one: <em>store configuration in the environment, not in code.</em> Because of that, production differs from your laptop only in <strong>configuration</strong>, never in code:</p>
+  <table>
+    <tr><th>Service</th><th>Local</th><th>Production change</th></tr>
+    <tr><td>Database + Auth</td><td>Supabase (cloud)</td><td>Nothing — already cloud.</td></tr>
+    <tr><td>Redis</td><td>your own Redis</td><td>Point <code>REDIS_URL</code> at a managed Redis (e.g. Upstash). One env var.</td></tr>
+    <tr><td>The AI</td><td>OpenAI</td><td>Set <code>LLM_PROVIDER=claude</code> + the key. (This is why we hid the LLM behind one interface.)</td></tr>
+    <tr><td>Secrets</td><td><code>.env</code> files</td><td>Stored in the platform's secret manager, never in git.</td></tr>
+  </table>
+
+  <h3>Two ways to actually run it</h3>
+  <ul>
+    <li><strong>Path A — Managed Kubernetes</strong> (the scalable way). Reuse the Chapter 10 manifests, but point the images at the registry and Redis at a managed service, on a real cluster (GKE/EKS/AKS/DigitalOcean). Everything you practiced — replicas, autoscaling, the rate limiter holding across pods — now on real hardware.</li>
+    <li><strong>Path B — A single small VM</strong> (the simple, cheap way). One ~$5–10/month server running Docker Compose with production config, behind a tool like Caddy that adds HTTPS automatically. Perfect for a solo project. When you outgrow it, Path A is waiting with the same images.</li>
+  </ul>
+
+  <div class="box whenuse"><span class="label">A realistic first deploy</span>
+  Take Path B: a small cloud VM running your Compose stack, a free managed Redis (Upstash), Claude as the AI, and Caddy for automatic HTTPS on your domain. That's a real, production-shaped deployment of everything you built, for a few dollars a month — without the operational weight of a full Kubernetes cluster.</div>
+
+  <h3>What you actually learned</h3>
+  <p>The startup evaluator was scaffolding. The durable skills are bigger: taking a vague idea, breaking it into buildable pieces, making deliberate trade-offs, debugging the inevitable surprises, and assembling something that works at scale. You now understand — and have <em>used</em> — APIs, databases, auth, caching, queues, workers, webhooks, containers, load balancing, orchestration, and CI/CD. Those transfer to any system you'll ever build.</p>
+  <p style="text-align:center;margin-top:18px;font-weight:700;color:var(--blue);">Go build the next thing.</p>
+</section>
+
+<!-- ============================ GLOSSARY ============================ -->
+<section class="chapter">
+  <h2>Appendix &nbsp;Glossary of Every Term</h2>
+  <p class="lead">Plain-English definitions. Skim now, return when a word stops you.</p>
+
+  <h4>Web &amp; APIs</h4>
+  <ul>
+    <li><strong>API</strong> — a contract for how programs talk: send a request shaped like this, get a response shaped like that.</li>
+    <li><strong>REST</strong> — an API style: URLs are resources (nouns), HTTP methods are verbs.</li>
+    <li><strong>HTTP method</strong> — the verb: GET (read), POST (create), PATCH (update), DELETE (remove).</li>
+    <li><strong>Status code</strong> — the numeric result: 200 OK, 201 Created, 202 Accepted, 404 Not Found, 401 Unauthorized, 429 Too Many Requests.</li>
+    <li><strong>JSON</strong> — a simple text format of keys and values for sending data.</li>
+    <li><strong>FastAPI</strong> — the Python framework we use to build the API.</li>
+    <li><strong>Endpoint</strong> — one API door: a method + path handled by one function.</li>
+    <li><strong>CORS</strong> — a browser rule that blocks a page from calling a different origin unless allowed; a reverse proxy removes the need for it.</li>
+  </ul>
+
+  <h4>Data &amp; Auth</h4>
+  <ul>
+    <li><strong>Postgres / relational database</strong> — stores data in connected tables.</li>
+    <li><strong>Primary key / foreign key</strong> — a row's unique id / a column pointing to another table's row.</li>
+    <li><strong>Index</strong> — a pre-sorted lookup that turns a slow full scan into an instant jump.</li>
+    <li><strong>Migration</strong> — a versioned script that changes the database shape (via Alembic).</li>
+    <li><strong>JWT</strong> — a small signed token proving who you are; verified by math, not a database lookup.</li>
+    <li><strong>Authentication vs authorization</strong> — "who are you?" vs "are you allowed to do this?" — both required.</li>
+    <li><strong>Supabase</strong> — hosted Postgres + a ready-made login system.</li>
+  </ul>
+
+  <h4>Speed, scale &amp; events</h4>
+  <ul>
+    <li><strong>Redis</strong> — a fast in-memory store; here a queue, a cache, and a rate-limit counter.</li>
+    <li><strong>Cache</strong> — stored results of expensive work; <strong>TTL</strong> = expiry; <strong>invalidation</strong> = deleting a stale copy.</li>
+    <li><strong>Queue / worker</strong> — a line of jobs / a separate program that runs them. Slow work lives here.</li>
+    <li><strong>Rate limiter</strong> — caps requests per user per time window; returns 429 over the limit.</li>
+    <li><strong>Webhook</strong> — a URL you register so a server can POST you when an event happens (reverse of an API call).</li>
+    <li><strong>HMAC</strong> — a keyed signature proving a message is authentic and untampered.</li>
+    <li><strong>Idempotent</strong> — safe to do more than once with the same effect (important for webhook retries).</li>
+    <li><strong>Throughput (RPS)</strong> — requests/second handled. <strong>Latency percentile (p95/p99)</strong> — the slow tail users feel.</li>
+  </ul>
+
+  <h4>Infrastructure</h4>
+  <ul>
+    <li><strong>Container</strong> — an app packaged with its whole environment, so it runs identically anywhere.</li>
+    <li><strong>Image vs container</strong> — the built template vs a running instance of it.</li>
+    <li><strong>Dockerfile</strong> — the recipe that builds an image. <strong>Docker Compose</strong> — runs many containers as one app.</li>
+    <li><strong>Volume</strong> — storage that outlives a container, so data survives restarts.</li>
+    <li><strong>Reverse proxy</strong> — a single front door that routes by URL (nginx); makes the app one origin (no CORS).</li>
+    <li><strong>Load balancer</strong> — spreads requests across many copies of a server.</li>
+    <li><strong>Vertical vs horizontal scaling</strong> — a bigger machine vs more copies of it.</li>
+    <li><strong>Stateless</strong> — keeping no important data in a process's memory (it's in Redis/Postgres); what makes horizontal scaling correct.</li>
+    <li><strong>Kubernetes (k8s)</strong> — an orchestrator: you declare desired state, it makes reality match (scaling, healing, load-balancing).</li>
+    <li><strong>Pod / Deployment / Service / Ingress</strong> — one container / "keep N alive" / stable name + load balancer / the front door.</li>
+    <li><strong>HPA</strong> — autoscaler that adds/removes pods based on load.</li>
+  </ul>
+
+  <h4>Shipping</h4>
+  <ul>
+    <li><strong>Git vs GitHub</strong> — the version-history tool vs the website that hosts repositories.</li>
+    <li><strong>CI/CD</strong> — auto-run tests/builds on every push (CI) + auto-publish deployable images (CD).</li>
+    <li><strong>GitHub Actions</strong> — GitHub's automation that runs your workflow on push.</li>
+    <li><strong>Container registry</strong> — storage for built images (ghcr.io); the bridge between build and deploy.</li>
+    <li><strong>12-Factor App</strong> — principles for portable apps; chiefly "config in the environment, not in code."</li>
+  </ul>
+
+  <p style="margin-top:24px;text-align:center;color:var(--muted);font-size:9.5pt;">— End of book —<br>Built alongside the StartupIQ project. Keep it next to the code.</p>
+</section>
+
+<!--CONTENT-->
+
+</body>
+</html>
